@@ -1,6 +1,7 @@
 function GameOfLife(width,height) {
   this.width = width;
   this.height = height;
+  this.paused = true;
 }
 
 GameOfLife.prototype.createAndShowBoard = function () {
@@ -42,7 +43,120 @@ GameOfLife.prototype.setupBoardEvents = function() {
   // EXAMPLE FOR ONE CELL
   // Here is how we would catch a click event on just the 0-0 cell
   // You need to add the click event on EVERY cell on the board
-  
+
+
+
+
+var pulsar =  "!Name: Pulsar \n" +
+              "!Author: John Conway \n" +
+              "!Despite its size, this is the fourth most common oscillator (and by far the most common of period greater than 2). \n" +
+              "!www.conwaylife.com/wiki/index.php?title=Pulsar \n" +
+              "..OOO...OOO \n" +
+              "O....O.O....O \n" +
+              "O....O.O....O \n" +
+              "  O....O.O....O \n" +
+              "..OOO...OOO \n" +
+              "..OOO...OOO \n" +
+              "O....O.O....O \n" +
+              "O....O.O....O \n" +
+              "O....O.O....O \n" +
+              "..OOO...OOO\n";
+
+
+var gliderGun = "!Name: Gosper glider gun\n" +
+"!Author: Bill Gosper\n" +
+"!The first known gun and the first known finite pattern with unbounded \n" +
+"!www.conwaylife.com/wiki/index.php?title=Gosper_glider_gun\n" +
+"........................O\n" +
+"......................O.O\n" +
+"............OO......OO............OO\n" +
+"...........O...O....OO............OO\n" +
+"OO........O.....O...OO\n" +
+"OO........O...O.OO....O.O\n" +
+"..........O.....O.......O\n" +
+"...........O...O\n" +
+"............OO\n";
+
+
+
+
+
+
+
+
+
+
+
+var beacon ="!Name: 1 beacon \n" +
+             "!Approximately the 32nd-most common oscillator. \n" +
+             "!www.conwaylife.com/wiki/index.php?title=1_beacon \n" +
+             "..OO \n" +
+             ".O.O \n" +
+             "O..O.OO \n" +
+             "OO.O..O \n" +
+             ".O.O \n" +
+             ".O..O \n" +
+              "..OO";
+
+  var gol = this;
+
+var beaconParser = function(beacon) {
+    var startHeight = Math.floor(gol.height/3);
+    var startWidth = Math.floor(gol.width/3);
+    var splittedArrayBeacon = beacon.split('\n');
+    splittedArrayBeacon.forEach(function(element, index, array) {
+      element.trim();
+      if (element[0] != "!"){
+        for (var i = 0; i < element.length; i++){
+          var cell = document.getElementById((startWidth+i) + "-" + (startHeight + index));
+          if (element[i] === "."){
+            setDeadAlive(cell, "dead");
+          } else {
+            setDeadAlive(cell, "alive");
+          }
+        }
+      } 
+
+    });
+
+};
+
+
+  var beaconButton = document.getElementById('btn-beacon');
+    beaconButton.onclick = function(e){
+    beaconParser(beacon);
+  };
+
+  var gliderButton = document.getElementById('btn-glider');
+    gliderButton.onclick = function(e){
+    beaconParser(gliderGun);
+  };
+
+  var pulsarButton = document.getElementById('btn-pulsar');
+    pulsarButton.onclick = function(e){
+    beaconParser(pulsar);
+  };
+
+
+
+
+
+
+  setInterval(function(){if (!gol.paused) {gol.step()}}, 10);
+
+  var play = document.getElementById('btn-play');
+  play.onclick = function (e) {
+    gol.paused = false;
+    
+  }
+
+  var pause = document.getElementById('btn-pause');
+  pause.onclick = function (e) {
+    gol.paused = true;
+  } 
+
+
+
   var onCellClick = function (e) {
     // coordinates of cell, in case you need them
     var coord_array = this.id.split('-');
@@ -63,6 +177,7 @@ GameOfLife.prototype.setupBoardEvents = function() {
 
   var clearButton = document.getElementById('btn-clear');
   clearButton.onclick = function(e) {
+      gol.paused = true;
       var cellArray = document.getElementsByClassName('alive');
 
       while (cellArray.length) {
@@ -76,6 +191,7 @@ GameOfLife.prototype.setupBoardEvents = function() {
   var width = this.width;
 
   resetRandom.onclick = function(e) {
+    gol.paused = true;
     for (var h=0; h < height ; h++ ) {
       for (var w=0 ; w< width ; w++ ){
         var cell = document.getElementById(w +"-"+ h );
@@ -89,7 +205,7 @@ GameOfLife.prototype.setupBoardEvents = function() {
 };
 
   var stepButton = document.getElementById('btn-step');
-  var gol = this;
+  
   stepButton.onclick = function() { 
     gol.step();
   };
@@ -177,5 +293,5 @@ GameOfLife.prototype.enableAutoPlay = function () {
 };
 
 
-var gol = new GameOfLife(20,20);
+var gol = new GameOfLife(100,100);
 gol.createAndShowBoard();
