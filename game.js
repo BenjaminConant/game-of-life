@@ -49,12 +49,9 @@ GameOfLife.prototype.setupBoardEvents = function() {
     var coord_hash = {x: coord_array[0], y: coord_array[1]};
     // how to set the style of the cell when it's clicked
     if (this.getAttribute('data-status') == 'dead') {
-      this.className = "alive";
-      this.setAttribute('data-status', 'alive');
+      setDeadAlive(this, "alive");
     } else {
-      this.className = "dead";
-      this.setAttribute('data-status', 'dead');
-
+      setDeadAlive(this, "dead");
     }
   };
   
@@ -69,8 +66,7 @@ GameOfLife.prototype.setupBoardEvents = function() {
       var cellArray = document.getElementsByClassName('alive');
 
       while (cellArray.length) {
-        cellArray[0].setAttribute('data-status', 'dead');
-        cellArray[0].className = "dead";
+        setDeadAlive(cellArray[0], "dead");
       }
   };
 
@@ -84,27 +80,91 @@ GameOfLife.prototype.setupBoardEvents = function() {
       for (var w=0 ; w< width ; w++ ){
         var cell = document.getElementById(w +"-"+ h );
         if (Math.floor((Math.random() * 2))) {
-        cell.className = "dead";
-        cell.setAttribute('data-status', 'dead');
+          setDeadAlive(cell, "dead");
       } else {
-        cell.className = "alive";
-        cell.setAttribute('data-status', 'alive');
+        setDeadAlive(cell, "alive");
       }
     }
   }
 };
 
+  var stepButton = document.getElementById('btn-step');
+  var gol = this;
+  stepButton.onclick = function() { 
+    gol.step();
+  };
 
  // cell00.onclick = onCellClick;
 };
 
-  
+function setDeadAlive(el, status) {
+  el.setAttribute('data-status', status);
+  el.className = status;
+}
+
+function getNeighbors(el) {
+  var coordinates = el.id.split('-');
+  var h = Number(coordinates[1]), w = Number(coordinates[0]);
+  var ret_arr = [];
+  for(var i = -1; i <= 1; i++) {
+    for (var j = -1; j <= 1; j++) {
+      if (i == 0 && j == 0) continue;
+      var cell = document.getElementById((w+j) + "-" + (h+i));
+      if (cell) ret_arr.push(cell);
+    }
+  }
+  return ret_arr;
+}
+
+function liveNeighbors(el) {
+  var neighbors = getNeighbors(el);
+  var count = 0;
+  for (var i = 0; i < neighbors.length; i++) {
+    if (neighbors[i].className == 'alive') count++;
+  }
+  return count;
+}
 
 GameOfLife.prototype.step = function () {
   // Here is where you want to loop through all the cells
   // on the board and determine, based on it's neighbors,
   // whether the cell should be dead or alive in the next
   // evolution of the game
+  var h = this.height, w = this.width;
+  var neighbors = {};
+
+  for (var i = 0; i < h; i++) {
+    for (var j = 0; j < w; j++) {
+      var id = j + "-" + i;
+      var cell = document.getElementById(id);
+      var n = liveNeighbors(cell);
+      neighbors[id] = n;    
+    }
+  }
+
+  for (var i = 0; i < h; i++) {
+    for (var j = 0; j < w; j++) {
+
+      // Live cell w/ 2-3 live neighbors, do nothing
+      // Live cell w/ <2 live neighbors, die
+      // Live cell w/ >3 live neighbors, die
+      // Dead cell w/ 3 live neighbors, reproduction
+      var id = j +"-"+ i;
+      var cell = document.getElementById(id);
+      var n = neighbors[id];
+      var alive = (cell.className == "alive");
+      if (alive) {
+        if ((n == 2) || (n == 3)) continue;
+        else setDeadAlive(cell, "dead");
+      } else {
+        if (n == 3) setDeadAlive(cell, "alive");
+      }
+      
+    }
+  }
+
+
+
   
 };
 
