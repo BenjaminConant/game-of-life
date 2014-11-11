@@ -7,12 +7,14 @@ GameOfLife.prototype.createAndShowBoard = function () {
   // create <table> element
   var goltable = document.createElement("tbody");
   
+
+
   // build Table HTML
   var tablehtml = '';
   for (var h=0; h<this.height; h++) {
     tablehtml += "<tr id='row+" + h + "'>";
     for (var w=0; w<this.width; w++) {
-      tablehtml += "<td data-status='dead' id='" + w + "-" + h + "'></td>";
+      tablehtml += "<td data-status='dead' id='" + w + "-" + h + "' class='dead'></td>";
     }
     tablehtml += "</tr>";
   }
@@ -45,7 +47,6 @@ GameOfLife.prototype.setupBoardEvents = function() {
     // coordinates of cell, in case you need them
     var coord_array = this.id.split('-');
     var coord_hash = {x: coord_array[0], y: coord_array[1]};
-    
     // how to set the style of the cell when it's clicked
     if (this.getAttribute('data-status') == 'dead') {
       this.className = "alive";
@@ -53,12 +54,51 @@ GameOfLife.prototype.setupBoardEvents = function() {
     } else {
       this.className = "dead";
       this.setAttribute('data-status', 'dead');
+
     }
   };
   
-  var cell00 = document.getElementById('0-0');
-  cell00.onclick = onCellClick;
+
+  var cellArray = document.getElementsByClassName('dead');
+  for (var i = 0; i < cellArray.length ; i++) {
+    cellArray[i].onclick = onCellClick;
+  }
+
+  var clearButton = document.getElementById('btn-clear');
+  clearButton.onclick = function(e) {
+      var cellArray = document.getElementsByClassName('alive');
+
+      while (cellArray.length) {
+        cellArray[0].setAttribute('data-status', 'dead');
+        cellArray[0].className = "dead";
+      }
+  };
+
+  var resetRandom = document.getElementById('btn-reset-random');
+ 
+  var height = this.height;
+  var width = this.width;
+
+  resetRandom.onclick = function(e) {
+    for (var h=0; h < height ; h++ ) {
+      for (var w=0 ; w< width ; w++ ){
+        var cell = document.getElementById(w +"-"+ h );
+        if (Math.floor((Math.random() * 2))) {
+        cell.className = "dead";
+        cell.setAttribute('data-status', 'dead');
+      } else {
+        cell.className = "alive";
+        cell.setAttribute('data-status', 'alive');
+      }
+    }
+  }
 };
+
+
+ // cell00.onclick = onCellClick;
+};
+
+  
 
 GameOfLife.prototype.step = function () {
   // Here is where you want to loop through all the cells
@@ -69,10 +109,13 @@ GameOfLife.prototype.step = function () {
 };
 
 GameOfLife.prototype.enableAutoPlay = function () {
+
+
   // Start Auto-Play by running the 'step' function
   // automatically repeatedly every fixed time interval
   
 };
+
 
 var gol = new GameOfLife(20,20);
 gol.createAndShowBoard();
